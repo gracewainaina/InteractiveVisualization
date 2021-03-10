@@ -13,13 +13,20 @@
 
 <body>
 <svg width = "600" height = "500"></svg>
+
+<form id = "sub">
+    <input type="radio" name="subject" value="Test-takers" checked>Test-takers</input>
+    <input type="radio" name="subject" value="Math">Math</input>
+    <input type="radio" name="subject" value="Verbal">Verbal</input>
+</form>
+
 <div>
-    <button type="button" class="active" value='Family Income.Less than 20k.Test-takers'>Below 20k</button>
-    <button type="button" value='Family Income.Between 20-40k.Test-takers'>20k - 40k</button>
-    <button type="button" value='Family Income.Between 40-60k.Test-takers'>40k - 60k</button>
-    <button type="button" value='Family Income.Between 60-80k.Test-takers'>60k - 80k</button>
-    <button type="button" value='Family Income.Between 80-100k.Test-takers'>80k - 100k</button>
-    <button type="button" value='Family Income.More than 100k.Test-takers'>Above 100k</button> 
+    <button type="button" value='Family Income.Less than 20k.'>Below 20k</button>
+    <button type="button" value='Family Income.Between 20-40k.'>20k - 40k</button>
+    <button type="button" value='Family Income.Between 40-60k.'>40k - 60k</button>
+    <button type="button" value='Family Income.Between 60-80k.'>60k - 80k</button>
+    <button type="button" value='Family Income.Between 80-100k.'>80k - 100k</button>
+    <button type="button" value='Family Income.More than 100k.'>Above 100k</button> 
 </div>
 </body>
 
@@ -109,43 +116,57 @@ d3.csv("school_scores.csv").then(function(data) {
         .x(function(d) { return xScale(d.year) })
         .y(function(d) { return yScale(d.median) }));
 
-    d3.select(".active").attr('style', 'background-color:'+myColor('Family Income.Less than 20k.Test-takers'));    
-    
     //update the graph
     function chooseFamilyIncomeBracket(chosenIncome){
+        //console.log("we're in bois.")
+        //console.log(years)
+        //make new median
         console.log(chosenIncome)
-        var medians = generateMedians(chosenIncome);
-        
+        var medians = []
+        for (i = 0; i < years.length; i++){
+            medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenIncome]);
+        }
+
+        var updateData = [];
+        for(var i = 0; i < years.length; i++ ) {
+            updateData.push({year: years[i], median: medians[i]});
+        } 
+
         g.append("path").
-            datum(medians)
+            datum(updateData)
             .attr("d", d3.line()
                 .x(function(d) { return xScale(d.year) })
                 .y(function(d) { return yScale(d.median) }))
-            .attr("stroke", function(d) { return myColor(chosenIncome)})
+            .attr("stroke", "red")
             .attr("fill", "none")
             .attr("class", "line")
-            .attr("id", chosenIncome)
             .attr("stroke-width", 1.5);
+
+        console.log(data);
+        //console.log(updateData);
     }
 
-    //add on click for the update function
-    d3.selectAll("button")
-        .on("click", function(d){
-            var button = d3.select(this)
-            var value = button.property('value')
-            var active = button.attr('class')
-            console.log(active)
-            if (active === 'active') {
-                button.attr('class', 'null');
-                button.attr('style', 'null');
-                d3.select('#'+value).remove();
-            }
-            else {
-                button.attr('class', 'active');
-                button.attr('style', 'background-color:'+myColor(value))
-                chooseFamilyIncomeBracket(value);
-            }
-        })
-})       
+    var subjectVal;
+    var inputs=document.getElementsByTagName("input"),
+        x=inputs.length;
+    while(x--)
+        if(inputs[x].type==="radio")
+            inputs[x].addEventListener("change",function(){
+                subjectVal = this.value
+                if (subjectVal != '') {
+                    //add on click for the update function
+                    d3.selectAll("button")
+                        .on("click", function(d){
+                            var value = d3.select(this).property('value')
+                            // value.concat(subjectVal)
+                            value = value + subjectVal
+                            chooseFamilyIncomeBracket(value)
+                        })
+    }
+
+            },0);
+ 
+}) 
+
 </script>
 </html>
