@@ -7,13 +7,14 @@
         width: 600;
         height: 500;
     }
+
     </style>
 </head>
 
 <body>
 <svg width = "600" height = "500"></svg>
 <div>
-    <button type="button" value='Family Income.Less than 20k.Test-takers'>Below 20k</button>
+    <button type="button" class="active" value='Family Income.Less than 20k.Test-takers'>Below 20k</button>
     <button type="button" value='Family Income.Between 20-40k.Test-takers'>20k - 40k</button>
     <button type="button" value='Family Income.Between 40-60k.Test-takers'>40k - 60k</button>
     <button type="button" value='Family Income.Between 60-80k.Test-takers'>60k - 80k</button>
@@ -23,8 +24,10 @@
 </body>
 
 <script src="http://d3js.org/d3.v6.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
 <script>
+
 //do scales
 var svg = d3.select("svg");
 var margin = 200;
@@ -39,37 +42,38 @@ var xScale = d3.scaleBand().range([0, width]).padding(0.4),
 var g = svg.append("g")
             .attr("transform", "translate(" + 100 + "," + 100 + ")");
 
-// list of states
+// lists
 var stateNames = ["Alaska", "Alabama", "Arkansas", "American Samoa", "Arizona", "California", "Colorado", "Connecticut", "District of Columbia", "Delaware", "Florida", "Georgia", "Guam", "Hawaii", "Iowa", "Idaho", "Illinois", "Indiana", "Kansas", "Kentucky", "Louisiana", "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Mississippi", "Montana", "North Carolina", "North Dakota", "Nebraska", "New Hampshire", "New Jersey", "New Mexico", "Nevada", "New York", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Virginia", "Virgin Islands", "Vermont", "Washington", "Wisconsin", "West Virginia", "Wyoming"]; 
 var years = ["2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015"];
+var incomes = ['Family Income.Less than 20k.Test-takers', 'Family Income.Between 20-40k.Test-takers', 'Family Income.Between 40-60k.Test-takers', 'Family Income.Between 60-80k.Test-takers', 'Family Income.Between 80-100k.Test-takers', 'Family Income.More than 100k.Test-takers'];
+
+//color scale
+var myColor = d3.scaleOrdinal()
+      .domain(incomes)
+      .range(d3.schemeSet2);
 
 //get data
 d3.csv("school_scores.csv").then(function(data) {
-    // color palette
-    // var res = sumstat.map(function(d){ return d.key }) // list of group names
-    // var color = d3.scaleOrdinal()
-    //     .domain(res)
-    //     .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'])
+    function generateMedians(chosenCol){
+        var yearMedians = []
+        for (i = 0; i < years.length; i++){
+            yearMedians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenCol]);
+        }
+
+        //make final data array with year and median columns
+        var medianData = []; // start empty, add each element one at a time
+        for(var i = 0; i < years.length; i++ ) {
+            medianData.push({year: years[i], median: yearMedians[i]});
+        }
+
+        return medianData;
+    }
     
-    //gather the medians for every year
-    var yearMedians = []
-    for (i = 0; i < years.length; i++){
-        yearMedians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d['Family Income.Less than 20k.Test-takers']);
-    }
-
-    //make final data array with year and median columns
-    var medianData = []; // start empty, add each element one at a time
-    for(var i = 0; i < years.length; i++ ) {
-        medianData.push({year: years[i], median: yearMedians[i]});
-    }
-
-    //console.log(yearMedians.length);
-    // console.log(yearMedians);
-    // console.log(medianData);
+    var medianData = generateMedians(incomes[0]); 
     
     //create axes
     xScale.domain(d3.map(data, function(d) { return d.Year; }));
-    yScale.domain([d3.min(yearMedians, function(d) { return d; }), d3.max(yearMedians, function(d) { return d; })]); 
+    yScale.domain([0, 1600]); 
     
     //x axis
     g.append("g")
@@ -97,62 +101,51 @@ d3.csv("school_scores.csv").then(function(data) {
     g.append("path")
     .datum(medianData)
     .attr("class", "line")
+    .attr("id", "Family Income.Less than 20k.Test-takers")
     .attr("fill", "none")
-    .attr("stroke", "steelblue")
+    .attr("stroke", function(d) { return myColor('Family Income.Less than 20k.Test-takers')})
     .attr("stroke-width", 1.5)
     .attr("d", d3.line()
         .x(function(d) { return xScale(d.year) })
         .y(function(d) { return yScale(d.median) }));
 
+    d3.select(".active").attr('style', 'background-color:'+myColor('Family Income.Less than 20k.Test-takers'));    
+    
     //update the graph
     function chooseFamilyIncomeBracket(chosenIncome){
-        //console.log("we're in bois.")
-        //console.log(years)
-        //make new median
         console.log(chosenIncome)
-        var medians = []
-        for (i = 0; i < years.length; i++){
-            medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenIncome]);
-        }
-
-        var updateData = [];
-        for(var i = 0; i < years.length; i++ ) {
-            updateData.push({year: years[i], median: medians[i]});
-        } 
-
+        var medians = generateMedians(chosenIncome);
+        
         g.append("path").
-            datum(updateData)
+            datum(medians)
             .attr("d", d3.line()
                 .x(function(d) { return xScale(d.year) })
                 .y(function(d) { return yScale(d.median) }))
-            .attr("stroke", "red")
+            .attr("stroke", function(d) { return myColor(chosenIncome)})
             .attr("fill", "none")
             .attr("class", "line")
+            .attr("id", chosenIncome)
             .attr("stroke-width", 1.5);
-
-        console.log(data);
-        //console.log(updateData);
     }
 
     //add on click for the update function
     d3.selectAll("button")
         .on("click", function(d){
-            var value = d3.select(this).property('value')
-            chooseFamilyIncomeBracket(value)
+            var button = d3.select(this)
+            var value = button.property('value')
+            var active = button.attr('class')
+            console.log(active)
+            if (active === 'active') {
+                button.attr('class', 'null');
+                button.attr('style', 'null');
+                d3.select('#'+value).remove();
+            }
+            else {
+                button.attr('class', 'active');
+                button.attr('style', 'background-color:'+myColor(value))
+                chooseFamilyIncomeBracket(value);
+            }
         })
-})
-
-
-//function that updates the chart
-
-    // d3.selectAll("button")
-    //         .append("onclick", function() {chooseFamilyIncomeBracket()});
-    // event handling
-    // d3.select('')
-    
-    // svg.selectAll(".line")
-    // .transition()
-    // .ease(d3.easeLinear)
-    // .duration(2000);        
+})       
 </script>
 </html>
