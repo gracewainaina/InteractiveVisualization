@@ -116,23 +116,34 @@ d3.csv("school_scores.csv").then(function(data) {
         .x(function(d) { return xScale(d.year) })
         .y(function(d) { return yScale(d.median) }));
 
-    d3.select(".active").attr('style', 'background-color:'+myColor('Family Income.Less than 20k.Test-takers'));    
-    
     //update the graph
     function chooseFamilyIncomeBracket(chosenIncome){
+        //console.log("we're in bois.")
+        //console.log(years)
+        //make new median
         console.log(chosenIncome)
-        var medians = generateMedians(chosenIncome);
-        
+        var medians = []
+        for (i = 0; i < years.length; i++){
+            medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenIncome]);
+        }
+
+        var updateData = [];
+        for(var i = 0; i < years.length; i++ ) {
+            updateData.push({year: years[i], median: medians[i]});
+        } 
+
         g.append("path").
-            datum(medians)
+            datum(updateData)
             .attr("d", d3.line()
                 .x(function(d) { return xScale(d.year) })
                 .y(function(d) { return yScale(d.median) }))
-            .attr("stroke", function(d) { return myColor(chosenIncome)})
+            .attr("stroke", "red")
             .attr("fill", "none")
             .attr("class", "line")
-            .attr("id", chosenIncome)
             .attr("stroke-width", 1.5);
+
+        console.log(data);
+        //console.log(updateData);
     }
 
     var subjectVal;
