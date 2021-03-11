@@ -36,7 +36,14 @@
     <button type="button" value='Gender.Male.'>Male</button> 
 </div>
 
-
+<div>
+    <button type="button" value='GPA.A plus.'>A+</button>
+    <button type="button" value='GPA.A.'>A</button>
+    <button type="button" value='GPA.A minus.'>A-</button>
+    <button type="button" value='GPA.B.'>B</button>
+    <button type="button" value='GPA.C.'>C</button>
+    <button type="button" value='GPA.D or lower.'>D or lower</button> 
+</div>
 
 </body>
 
@@ -128,15 +135,16 @@ d3.csv("school_scores.csv").then(function(data) {
         .x(function(d) { return xScale(d.year) })
         .y(function(d) { return yScale(d.median) }));
 
+
     //update the graph
-    function chooseFamilyIncomeBracket(chosenIncome){
+    function chooseDataVariable(chosenVar){
         //console.log("we're in bois.")
         //console.log(years)
         //make new median
-        console.log(chosenIncome)
+        console.log(chosenVar)
         var medians = []
         for (i = 0; i < years.length; i++){
-            medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenIncome]);
+            medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenVar]);
         }
 
         var updateData = [];
@@ -149,45 +157,76 @@ d3.csv("school_scores.csv").then(function(data) {
             .attr("d", d3.line()
                 .x(function(d) { return xScale(d.year) })
                 .y(function(d) { return yScale(d.median) }))
-            .attr("stroke", myColor(chosenIncome))
+            .attr("stroke", myColor(chosenVar))
             .attr("fill", "none")
             .attr("class", "line")
-            .attr("id", chosenIncome)
+            .attr("id", chosenVar)
             .attr("stroke-width", 1.5);
 
         console.log(data);
         //console.log(updateData);
     }
 
-    function chooseGender(chosenGender){
-        //console.log("we're in bois.")
-        //console.log(years)
-        //make new median
-        console.log(chosenGender)
-        var medians = []
-        for (i = 0; i < years.length; i++){
-            medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenGender]);
-        }
+    //update the graph
+    // function chooseFamilyIncomeBracket(chosenIncome){
+    //     //console.log("we're in bois.")
+    //     //console.log(years)
+    //     //make new median
+    //     console.log(chosenIncome)
+    //     var medians = []
+    //     for (i = 0; i < years.length; i++){
+    //         medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenIncome]);
+    //     }
 
-        var updateData = [];
-        for(var i = 0; i < years.length; i++ ) {
-            updateData.push({year: years[i], median: medians[i]});
-        } 
+    //     var updateData = [];
+    //     for(var i = 0; i < years.length; i++ ) {
+    //         updateData.push({year: years[i], median: medians[i]});
+    //     } 
 
-        g.append("path").
-            datum(updateData)
-            .attr("d", d3.line()
-                .x(function(d) { return xScale(d.year) })
-                .y(function(d) { return yScale(d.median) }))
-            .attr("stroke", myColor(chosenGender))
-            .attr("fill", "none")
-            .attr("class", "line")
-            .attr("id", chosenGender)
-            .attr("stroke-width", 1.5);
+    //     g.append("path").
+    //         datum(updateData)
+    //         .attr("d", d3.line()
+    //             .x(function(d) { return xScale(d.year) })
+    //             .y(function(d) { return yScale(d.median) }))
+    //         .attr("stroke", myColor(chosenIncome))
+    //         .attr("fill", "none")
+    //         .attr("class", "line")
+    //         .attr("id", chosenIncome)
+    //         .attr("stroke-width", 1.5);
 
-        console.log(data);
-        //console.log(updateData);
-    }
+    //     console.log(data);
+    //     //console.log(updateData);
+    // }
+
+    // function chooseGender(chosenGender){
+    //     //console.log("we're in bois.")
+    //     //console.log(years)
+    //     //make new median
+    //     console.log(chosenGender)
+    //     var medians = []
+    //     for (i = 0; i < years.length; i++){
+    //         medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenGender]);
+    //     }
+
+    //     var updateData = [];
+    //     for(var i = 0; i < years.length; i++ ) {
+    //         updateData.push({year: years[i], median: medians[i]});
+    //     } 
+
+    //     g.append("path").
+    //         datum(updateData)
+    //         .attr("d", d3.line()
+    //             .x(function(d) { return xScale(d.year) })
+    //             .y(function(d) { return yScale(d.median) }))
+    //         .attr("stroke", myColor(chosenGender))
+    //         .attr("fill", "none")
+    //         .attr("class", "line")
+    //         .attr("id", chosenGender)
+    //         .attr("stroke-width", 1.5);
+
+    //     console.log(data);
+    //     //console.log(updateData);
+    // }
 
     var subjectVal;
     var inputs=document.getElementsByTagName("input"),
@@ -204,41 +243,55 @@ d3.csv("school_scores.csv").then(function(data) {
                             var value = button.property('value')
                             var active = button.attr('class')
                             console.log(active)
+
+                            value = value + subjectVal
+
+                            if (active === 'active') {
+                                button.attr('class', 'null');
+                                button.attr('style', 'null');
+                                console.log(d3.select('#'+value));
+                                d3.select('#'+value).remove();
+                            }
+                            else {
+                                button.attr('class', 'active');
+                                button.attr('style', 'background-color:'+myColor(value))
+                                chooseDataVariable(value);
+                            }
                             
                             // if value is family income
-                            if (value.includes("Family Income.")) {
-                                value = value + subjectVal
+                            // if (value.includes("Family Income.")) {
+                            //     value = value + subjectVal
 
-                                if (active === 'active') {
-                                    button.attr('class', 'null');
-                                    button.attr('style', 'null');
-                                    console.log(d3.select('#'+value));
-                                    d3.select('#'+value).remove();
-                                }
-                                else {
-                                    button.attr('class', 'active');
-                                    button.attr('style', 'background-color:'+myColor(value))
-                                    chooseFamilyIncomeBracket(value);
-                                }
-                            }
+                            //     if (active === 'active') {
+                            //         button.attr('class', 'null');
+                            //         button.attr('style', 'null');
+                            //         console.log(d3.select('#'+value));
+                            //         d3.select('#'+value).remove();
+                            //     }
+                            //     else {
+                            //         button.attr('class', 'active');
+                            //         button.attr('style', 'background-color:'+myColor(value))
+                            //         chooseDataVariable(value);
+                            //     }
+                            // }
 
-                            // else if value is gender
-                            else if (value.includes("Gender.")) {
-                                value = value + subjectVal
+                            // // else if value is gender
+                            // else if (value.includes("Gender.")) {
+                            //     value = value + subjectVal
 
-                                if (active === 'active') {
-                                    button.attr('class', 'null');
-                                    button.attr('style', 'null');
-                                    console.log(d3.select('#'+value));
-                                    d3.select('#'+value).remove();
-                                }
-                                else {
-                                    button.attr('class', 'active');
-                                    button.attr('style', 'background-color:'+myColor(value))
-                                    chooseGender(value);
-                                }
-                            }
-                            
+                            //     if (active === 'active') {
+                            //         button.attr('class', 'null');
+                            //         button.attr('style', 'null');
+                            //         console.log(d3.select('#'+value));
+                            //         d3.select('#'+value).remove();
+                            //     }
+                            //     else {
+                            //         button.attr('class', 'active');
+                            //         button.attr('style', 'background-color:'+myColor(value))
+                            //         chooseDataVariable(value);
+                            //     }
+                            // }
+
 
 
 
