@@ -139,9 +139,10 @@ d3.csv("school_scores.csv").then(function(data) {
             .attr("d", d3.line()
                 .x(function(d) { return xScale(d.year) })
                 .y(function(d) { return yScale(d.median) }))
-            .attr("stroke", "red")
+            .attr("stroke", myColor(chosenIncome))
             .attr("fill", "none")
             .attr("class", "line")
+            .attr("id", chosenIncome)
             .attr("stroke-width", 1.5);
 
         console.log(data);
@@ -169,6 +170,7 @@ d3.csv("school_scores.csv").then(function(data) {
                             if (active === 'active') {
                                 button.attr('class', 'null');
                                 button.attr('style', 'null');
+                                console.log(d3.select('#'+value));
                                 d3.select('#'+value).remove();
                             }
                             else {
