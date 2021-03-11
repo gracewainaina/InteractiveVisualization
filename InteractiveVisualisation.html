@@ -30,6 +30,14 @@
     <button type="button" value='Family Income.Between 80-100k.'>80k - 100k</button>
     <button type="button" value='Family Income.More than 100k.'>Above 100k</button> 
 </div>
+
+<div>
+    <button type="button" value='Gender.Female.'>Female</button>
+    <button type="button" value='Gender.Male.'>Male</button> 
+</div>
+
+
+
 </body>
 
 <script src="http://d3js.org/d3.v6.min.js"></script>
@@ -55,6 +63,8 @@ var g = svg.append("g")
 var stateNames = ["Alaska", "Alabama", "Arkansas", "American Samoa", "Arizona", "California", "Colorado", "Connecticut", "District of Columbia", "Delaware", "Florida", "Georgia", "Guam", "Hawaii", "Iowa", "Idaho", "Illinois", "Indiana", "Kansas", "Kentucky", "Louisiana", "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Mississippi", "Montana", "North Carolina", "North Dakota", "Nebraska", "New Hampshire", "New Jersey", "New Mexico", "Nevada", "New York", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Virginia", "Virgin Islands", "Vermont", "Washington", "Wisconsin", "West Virginia", "Wyoming"]; 
 var years = ["2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015"];
 var incomes = ['Family Income.Less than 20k.Test-takers', 'Family Income.Between 20-40k.Test-takers', 'Family Income.Between 40-60k.Test-takers', 'Family Income.Between 60-80k.Test-takers', 'Family Income.Between 80-100k.Test-takers', 'Family Income.More than 100k.Test-takers'];
+var genders = ['Gender.Female.Test-takers', 'Gender.Male.Test-takers']
+
 
 //color scale
 var myColor = d3.scaleOrdinal()
@@ -149,6 +159,36 @@ d3.csv("school_scores.csv").then(function(data) {
         //console.log(updateData);
     }
 
+    function chooseGender(chosenGender){
+        //console.log("we're in bois.")
+        //console.log(years)
+        //make new median
+        console.log(chosenGender)
+        var medians = []
+        for (i = 0; i < years.length; i++){
+            medians[i] = d3.median(data.filter(d => d.Year === years[i]), d => d[chosenGender]);
+        }
+
+        var updateData = [];
+        for(var i = 0; i < years.length; i++ ) {
+            updateData.push({year: years[i], median: medians[i]});
+        } 
+
+        g.append("path").
+            datum(updateData)
+            .attr("d", d3.line()
+                .x(function(d) { return xScale(d.year) })
+                .y(function(d) { return yScale(d.median) }))
+            .attr("stroke", myColor(chosenGender))
+            .attr("fill", "none")
+            .attr("class", "line")
+            .attr("id", chosenGender)
+            .attr("stroke-width", 1.5);
+
+        console.log(data);
+        //console.log(updateData);
+    }
+
     var subjectVal;
     var inputs=document.getElementsByTagName("input"),
         x=inputs.length;
@@ -164,20 +204,44 @@ d3.csv("school_scores.csv").then(function(data) {
                             var value = button.property('value')
                             var active = button.attr('class')
                             console.log(active)
+                            
+                            // if value is family income
+                            if (value.includes("Family Income.")) {
+                                value = value + subjectVal
 
-                            value = value + subjectVal
+                                if (active === 'active') {
+                                    button.attr('class', 'null');
+                                    button.attr('style', 'null');
+                                    console.log(d3.select('#'+value));
+                                    d3.select('#'+value).remove();
+                                }
+                                else {
+                                    button.attr('class', 'active');
+                                    button.attr('style', 'background-color:'+myColor(value))
+                                    chooseFamilyIncomeBracket(value);
+                                }
+                            }
 
-                            if (active === 'active') {
-                                button.attr('class', 'null');
-                                button.attr('style', 'null');
-                                console.log(d3.select('#'+value));
-                                d3.select('#'+value).remove();
+                            // else if value is gender
+                            else if (value.includes("Gender.")) {
+                                value = value + subjectVal
+
+                                if (active === 'active') {
+                                    button.attr('class', 'null');
+                                    button.attr('style', 'null');
+                                    console.log(d3.select('#'+value));
+                                    d3.select('#'+value).remove();
+                                }
+                                else {
+                                    button.attr('class', 'active');
+                                    button.attr('style', 'background-color:'+myColor(value))
+                                    chooseGender(value);
+                                }
                             }
-                            else {
-                                button.attr('class', 'active');
-                                button.attr('style', 'background-color:'+myColor(value))
-                                chooseFamilyIncomeBracket(value);
-                            }
+                            
+
+
+
                         })
                 }
 
