@@ -29,16 +29,16 @@
 <h1>Number of SAT Test-takers and SAT Scores by Demographic</h1>
 <!-- subject buttons -->
 <form id = "subjects">
-    <input type="radio" name="subject" value="Test-takers" onclick="createTestTakers()">Test-takers</input>
-    <input type="radio" name="subject" value="Math" onclick="createMath()">Math</input>
-    <input type="radio" name="subject" value="Verbal" onclick="createVerbal()">Verbal</input>
+    <input type="radio" name="subject" value="Test-takers" id = "test_takers" onclick="createTestTakers()">Test-takers</input>
+    <input type="radio" name="subject" value="Math" id = "math_scores" onclick="createMath()">Math</input>
+    <input type="radio" name="subject" value="Verbal" id = "verbal_scores" onclick="createVerbal()">Verbal</input>
 </form>
 
 <svg width = "600" height = "500"></svg>
 
 <form>
     <div>
-        <input type="radio" name="category" value="income" id = "default" checked>Income Bracket</input>
+        <input type="radio" name="category" value="income" id = "default" onclick="createIncome(bottomButtonCheck())" checked>Income Bracket</input>
         <div class="reveal-if-active">
             <button type="button" value='Family Income.Less than 20k.'>Below 20k</button>
             <button type="button" value='Family Income.Between 20-40k.'>20k - 40k</button>
@@ -50,7 +50,7 @@
     </div>
     
     <div>
-        <input type="radio" name="category" value="gender">Gender</input>
+        <input type="radio" name="category" value="gender" onclick="createGender(bottomButtonCheck())">Gender</input>
         <div class="reveal-if-active">
             <button type="button" value='Gender.Female.'>Female</button>
             <button type="button" value='Gender.Male.'>Male</button> 
@@ -58,7 +58,7 @@
     </div>
     
     <div>
-        <input type="radio" name="category" value="gpa">GPA</input>
+        <input type="radio" name="category" value="gpa" onclick="createGPA(bottomButtonCheck())">GPA</input>
         <div class="reveal-if-active">
             <button type="button" value='GPA.A plus.'>A+</button>
             <button type="button" value='GPA.A.'>A</button>
@@ -74,75 +74,45 @@
 <script src="http://d3js.org/d3.v6.min.js"></script>
 
 <script>
-    var stateNames = ["Alaska", "Alabama", "Arkansas", "American Samoa", "Arizona", "California", "Colorado", "Connecticut", "District of Columbia", "Delaware", "Florida", "Georgia", "Guam", "Hawaii", "Iowa", "Idaho", "Illinois", "Indiana", "Kansas", "Kentucky", "Louisiana", "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Mississippi", "Montana", "North Carolina", "North Dakota", "Nebraska", "New Hampshire", "New Jersey", "New Mexico", "Nevada", "New York", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Virginia", "Virgin Islands", "Vermont", "Washington", "Wisconsin", "West Virginia", "Wyoming"]; 
     var years = ["2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015"];
-    var incomes = ['Family Income.Less than 20k.Test-takers', 'Family Income.Between 20-40k.Test-takers', 'Family Income.Between 40-60k.Test-takers', 'Family Income.Between 60-80k.Test-takers', 'Family Income.Between 80-100k.Test-takers', 'Family Income.More than 100k.Test-takers'];
-    var genders = ['Gender.Female.Test-takers', 'Gender.Male.Test-takers']
-
-    function buildAxis(value, minY, maxY){
-        //do scales
-        var svg = d3.select("svg");
-        var margin = 200;
-        var width = svg.attr("width") - margin;
-        var height = svg.attr("height") - margin;
-
-        //make scales
-        var xScale = d3.scaleBand().range([0, width]).padding(0.4),
-        yScale = d3.scaleLinear().range([height, 0]);
-
-        //idk why but yeh
-        var g = svg.append("g")
-                .attr("transform", "translate(" + 100 + "," + 100 + ")")
-                .attr("class", value);
-
-        //create axes
-        xScale.domain(years);
-        yScale.domain([minY, maxY]); 
-        
-        //x axis
-        g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(xScale))
-        .append("text")
-        .attr("y", height - 250)
-        .attr("x", width - 100)
-        .attr("text-anchor", "end")
-        .attr("stroke", "black")
-        .text("Year");
-
-        //y axis
-        g.append("g")
-        .call(d3.axisLeft(yScale))
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "-5.1em")
-        .attr("text-anchor", "end")
-        .attr("stroke", "black")
-        .text("AVG Number of Testtakers"); 
-
-        return xScale, yScale;
-    }
 
     function createTestTakers(){
-        d3.selectAll("svg > *").remove();
         document.getElementById("default").checked = true;
         createIncome("test_takers");
     }
 
     function createMath(){
-        d3.selectAll("svg > *").remove();
         document.getElementById("default").checked = true;
         createIncome("math_scores");
     }
 
     function createVerbal(){
-        d3.selectAll("svg > *").remove();
         document.getElementById("default").checked = true;
         createIncome("verbal_scores");
     }
 
+    function bottomButtonCheck(){
+        var takers = document.getElementById("test_takers").checked;
+        var math = document.getElementById("math_scores").checked;
+        var verbal = document.getElementById("verbal_scores").checked;
+
+        console.log(takers);
+        console.log(math);
+        console.log(verbal);
+
+        if (takers){
+            var value = "test_takers";
+        } else if (math) {
+            var value = "math_scores";
+        } else if (verbal) {
+            var value = "verbal_scores";
+        }
+        
+        return value;
+    }
+
     function createIncome(value){
+        d3.selectAll("svg > *").remove();
         var file = "data/income_" + value + ".csv";
         console.log(file)
         
@@ -195,10 +165,9 @@
                     return Math.min(d['Family Income.Less than 20k.Verbal'], d['Family Income.Between 20-40k.Verbal'], d['Family Income.Between 40-60k.Verbal'],
                         d['Family Income.Between 60-80k.Verbal'], d['Family Income.Between 80-100k.Verbal'], d['Family Income.More than 100k.Verbal'])
                 });    
+            } else {
+                console.log("Something has gone wrong.");
             }
-
-            console.log(min);
-            console.log(max);
 
             //create axes
             xScale.domain(years);
@@ -239,8 +208,198 @@
                         .attr("stroke-width", 1.5);    
             });
         })
-       
-
     }
+
+    function createGender(value){
+        d3.selectAll("svg > *").remove();
+        var file = "data/gender_" + value + ".csv";
+        console.log(file)
+        
+        d3.csv(file).then(function (data) {
+            var columns = data.columns.filter(i => i != 'Year');
+            console.log(columns);
+            
+            //do scales
+            var svg = d3.select("svg");
+            var margin = 200;
+            var width = svg.attr("width") - margin;
+            var height = svg.attr("height") - margin;
+
+            //make scales
+            var xScale = d3.scaleBand().range([0, width]).padding(0.4),
+            yScale = d3.scaleLinear().range([height, 0]);
+
+            //idk why but yeh
+            var g = svg.append("g")
+                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("class", value);
+
+            if (value === "test_takers"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['Gender.Female.Test-takers'], d['Gender.Male.Test-takers'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['Gender.Female.Test-takers'], d['Gender.Male.Test-takers'])
+                });     
+            } else if (value === "math_scores"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['Gender.Female.Math'], d['Gender.Male.Math'], d['Total.Math'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['Gender.Female.Math'], d['Gender.Male.Math'], d['Total.Math'])
+                });    
+            } else if (value === "verbal_scores"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['Gender.Female.Verbal'], d['Gender.Male.Verbal'], d['Total.Verbal'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['Gender.Female.Verbal'], d['Gender.Male.Verbal'], d['Total.Verbal'])
+                });    
+            } else {
+                console.log("Something went wrong.");
+            }
+
+            //create axes
+            xScale.domain(years);
+            yScale.domain([min, max]); 
+            
+            //x axis
+            g.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(xScale))
+            .append("text")
+            .attr("y", height - 250)
+            .attr("x", width - 100)
+            .attr("text-anchor", "end")
+            .attr("stroke", "black")
+            .text("Year");
+
+            //y axis
+            g.append("g")
+            .call(d3.axisLeft(yScale))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "-5.1em")
+            .attr("text-anchor", "end")
+            .attr("stroke", "black")
+            .text("AVG Number of Testtakers"); 
+
+                var g = d3.select("g");
+                columns.forEach(i => {
+                    g.append("path")
+                        .datum(data)
+                        .attr("d", d3.line()
+                            .x(function(d) { return xScale(d.Year) })
+                            .y(function(d) { return yScale(d[i]) }))
+                        .attr("fill", "none")
+                        .attr("class", "line")
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 1.5);    
+            });
+        })
+    }
+
+    function createGPA(value){
+        d3.selectAll("svg > *").remove();
+        var file = "data/gpa_" + value + ".csv";
+        console.log(file)
+
+        d3.csv(file).then(function (data) {
+            var columns = data.columns.filter(i => i != 'Year');
+            console.log(columns);
+            
+            //do scales
+            var svg = d3.select("svg");
+            var margin = 200;
+            var width = svg.attr("width") - margin;
+            var height = svg.attr("height") - margin;
+
+            //make scales
+            var xScale = d3.scaleBand().range([0, width]).padding(0.4),
+            yScale = d3.scaleLinear().range([height, 0]);
+
+            //idk why but yeh
+            var g = svg.append("g")
+                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("class", value);
+
+            if (value === "test_takers"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['GPA.A plus.Test-takers'], d['GPA.A.Test-takers'], d['GPA.A minus.Test-takers'],
+                        d['GPA.B.Test-takers'], d['GPA.C.Test-takers'], d['GPA.D or lower.Test-takers'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['GPA.A plus.Test-takers'], d['GPA.A.Test-takers'], d['GPA.A minus.Test-takers'],
+                        d['GPA.B.Test-takers'], d['GPA.C.Test-takers'], d['GPA.D or lower.Test-takers'])
+                });     
+            } else if (value === "math_scores"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['GPA.A plus.Math'], d['GPA.A.Math'], d['GPA.A minus.Math'],
+                        d['GPA.B.Math'], d['GPA.C.Math'], d['GPA.D or lower.Math'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['GPA.A plus.Math'], d['GPA.A.Math'], d['GPA.A minus.Math'],
+                        d['GPA.B.Math'], d['GPA.C.Math'], d['GPA.D or lower.Math'])
+                });    
+            } else if (value === "verbal_scores"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['GPA.A plus.Verbal'], d['GPA.A.Verbal'], d['GPA.A minus.Verbal'],
+                        d['GPA.B.Verbal'], d['GPA.C.Verbal'], d['GPA.D or lower.Verbal'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['GPA.A plus.Verbal'], d['GPA.A.Verbal'], d['GPA.A minus.Verbal'],
+                        d['GPA.B.Verbal'], d['GPA.C.Verbal'], d['GPA.D or lower.Verbal'])
+                });    
+            } else {
+                console.log("Something went wrong.");
+            }
+
+            //create axes
+            xScale.domain(years);
+            yScale.domain([min, max]); 
+            
+            //x axis
+            g.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(xScale))
+            .append("text")
+            .attr("y", height - 250)
+            .attr("x", width - 100)
+            .attr("text-anchor", "end")
+            .attr("stroke", "black")
+            .text("Year");
+
+            //y axis
+            g.append("g")
+            .call(d3.axisLeft(yScale))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "-5.1em")
+            .attr("text-anchor", "end")
+            .attr("stroke", "black")
+            .text("AVG Number of Testtakers"); 
+
+                var g = d3.select("g");
+                columns.forEach(i => {
+                    g.append("path")
+                        .datum(data)
+                        .attr("d", d3.line()
+                            .x(function(d) { return xScale(d.Year) })
+                            .y(function(d) { return yScale(d[i]) }))
+                        .attr("fill", "none")
+                        .attr("class", "line")
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 1.5);    
+            });
+        })
+}
 </script>
 </html>
