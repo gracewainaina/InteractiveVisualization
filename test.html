@@ -149,71 +149,94 @@
         d3.csv(file).then(function (data) {
             var columns = data.columns.filter(i => i != 'Year');
             console.log(columns);
-           
-            /*
-            var xScale, yScale;
-            if (value === "test_takers"){
-                xScale, yScale = buildAxis(value, 0, 1600);
-            } else if (value === "math_scores"){
-                xScale, yScale = buildAxis(value, 0, 1000);
-            } else if (value === "verbal_scores"){
-                xScale, yScale = buildAxis(value, 0, 500);
-            } else {
-                console.log('something bad has occured.');
-            }*/
             
-        //do scales
-        var svg = d3.select("svg");
-        var margin = 200;
-        var width = svg.attr("width") - margin;
-        var height = svg.attr("height") - margin;
+            //do scales
+            var svg = d3.select("svg");
+            var margin = 200;
+            var width = svg.attr("width") - margin;
+            var height = svg.attr("height") - margin;
 
-        //make scales
-        var xScale = d3.scaleBand().range([0, width]).padding(0.4),
-        yScale = d3.scaleLinear().range([height, 0]);
+            //make scales
+            var xScale = d3.scaleBand().range([0, width]).padding(0.4),
+            yScale = d3.scaleLinear().range([height, 0]);
 
-        //idk why but yeh
-        var g = svg.append("g")
-                .attr("transform", "translate(" + 100 + "," + 100 + ")")
-                .attr("class", value);
+            //idk why but yeh
+            var g = svg.append("g")
+                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("class", value);
 
-        //create axes
-        xScale.domain(years);
-        yScale.domain([0, 1600]); 
-        
-        //x axis
-        g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(xScale))
-        .append("text")
-        .attr("y", height - 250)
-        .attr("x", width - 100)
-        .attr("text-anchor", "end")
-        .attr("stroke", "black")
-        .text("Year");
+            if (value === "test_takers"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['Family Income.Less than 20k.Test-takers'], d['Family Income.Between 20-40k.Test-takers'], d['Family Income.Between 40-60k.Test-Takers'],
+                        d['Family Income.Between 60-80k.Test-takers'], d['Family Income.Between 80-100k.Test-takers'], d['Family Income.More than 100k.Test-takers'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['Family Income.Less than 20k.Test-takers'], d['Family Income.Between 20-40k.Test-takers'], d['Family Income.Between 40-60k.Test-Takers'],
+                        d['Family Income.Between 60-80k.Test-takers'], d['Family Income.Between 80-100k.Test-takers'], d['Family Income.More than 100k.Test-takers'])
+                });     
+            } else if (value === "math_scores"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['Family Income.Less than 20k.Math'], d['Family Income.Between 20-40k.Math'], d['Family Income.Between 40-60k.Math'],
+                        d['Family Income.Between 60-80k.Math'], d['Family Income.Between 80-100k.Math'], d['Family Income.More than 100k.Math'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['Family Income.Less than 20k.Math'], d['Family Income.Between 20-40k.Math'], d['Family Income.Between 40-60k.Math'],
+                        d['Family Income.Between 60-80k.Math'], d['Family Income.Between 80-100k.Math'], d['Family Income.More than 100k.Math'])
+                });    
+            } else if (value === "verbal_scores"){
+                var max = d3.max(data, function (d) {
+                    return Math.max(d['Family Income.Less than 20k.Verbal'], d['Family Income.Between 20-40k.Verbal'], d['Family Income.Between 40-60k.Verbal'],
+                        d['Family Income.Between 60-80k.Verbal'], d['Family Income.Between 80-100k.Verbal'], d['Family Income.More than 100k.Verbal'])
+                });
+                    
+                var min = d3.min(data, function (d) {
+                    return Math.min(d['Family Income.Less than 20k.Verbal'], d['Family Income.Between 20-40k.Verbal'], d['Family Income.Between 40-60k.Verbal'],
+                        d['Family Income.Between 60-80k.Verbal'], d['Family Income.Between 80-100k.Verbal'], d['Family Income.More than 100k.Verbal'])
+                });    
+            }
 
-        //y axis
-        g.append("g")
-        .call(d3.axisLeft(yScale))
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "-5.1em")
-        .attr("text-anchor", "end")
-        .attr("stroke", "black")
-        .text("AVG Number of Testtakers"); 
+            console.log(min);
+            console.log(max);
 
-            var g = d3.select("g");
-            columns.forEach(i => {
-                g.append("path")
-                    .datum(data)
-                    .attr("d", d3.line()
-                        .x(function(d) { return xScale(d.Year) })
-                        .y(function(d) { return yScale(d[i]) }))
-                    .attr("fill", "none")
-                    .attr("class", "line")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1.5);    
+            //create axes
+            xScale.domain(years);
+            yScale.domain([min, max]); 
+            
+            //x axis
+            g.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(xScale))
+            .append("text")
+            .attr("y", height - 250)
+            .attr("x", width - 100)
+            .attr("text-anchor", "end")
+            .attr("stroke", "black")
+            .text("Year");
+
+            //y axis
+            g.append("g")
+            .call(d3.axisLeft(yScale))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "-5.1em")
+            .attr("text-anchor", "end")
+            .attr("stroke", "black")
+            .text("AVG Number of Testtakers"); 
+
+                var g = d3.select("g");
+                columns.forEach(i => {
+                    g.append("path")
+                        .datum(data)
+                        .attr("d", d3.line()
+                            .x(function(d) { return xScale(d.Year) })
+                            .y(function(d) { return yScale(d[i]) }))
+                        .attr("fill", "none")
+                        .attr("class", "line")
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 1.5);    
             });
         })
        
