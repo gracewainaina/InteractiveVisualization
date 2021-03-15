@@ -143,7 +143,7 @@
         var s500to600 = document.getElementById('Between 500 to 600').checked;	
         var s600to700 = document.getElementById('Between 600 to 700').checked;	
         var s700to800 = document.getElementById('Between 700 to 800').checked;	
-        var arr = [false, s200to300, s300to400, s400to500, s500to600, s600to700, s700to800];	
+        var arr = [s200to300, s300to400, s400to500, s500to600, s600to700, s700to800];	
         console.log(arr);	
         const results = columns.filter((d, ind) => arr[ind]);	
         console.log(columns);	
