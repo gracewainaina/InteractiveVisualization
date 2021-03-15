@@ -3,9 +3,8 @@
 <head>
     <meta charset="utf-8">
     <style>
-    svg {
-        width: 600;
-        height: 500;
+    body{
+        font-family: Helvetica, sans-serif;
     }
 
     .reveal-if-active{
@@ -131,9 +130,7 @@
         var b80to100 = document.getElementById('Between 80-100k').checked;	
         var plus100 = document.getElementById('More than 100k').checked;	
         var arr = [false, b20to40, b40to60, b60to80, b80to100, lower20, plus100];	
-        console.log(arr);	
         const results = columns.filter((d, ind) => arr[ind]);	
-        //console.log(columns);	
         return results;	
     }	
     function filterScoreRange(columns, value){	
@@ -143,20 +140,15 @@
         var s500to600 = document.getElementById('Between 500 to 600').checked;	
         var s600to700 = document.getElementById('Between 600 to 700').checked;	
         var s700to800 = document.getElementById('Between 700 to 800').checked;	
-        var arr = [false, s200to300, s300to400, s400to500, s500to600, s600to700, s700to800];	
-        console.log(arr);	
+        var arr = [s200to300, s300to400, s400to500, s500to600, s600to700, s700to800];	
         const results = columns.filter((d, ind) => arr[ind]);	
-        console.log(columns);	
-        console.log(results)
         return results;	
     }	
     function filterGenderColumns(columns, value){	
         var female = document.getElementById("Female").checked;	
         var male = document.getElementById("Male").checked;	
         var arr = [false, female, male];	
-        //console.log(arr);	
         const results = columns.filter((d, ind) => arr[ind]);	
-        //console.log(results);	
         return results;	
     }	
     function filterGPAColumns(columns, value){	
@@ -204,7 +196,10 @@
                 var min = d3.min(data, function (d) {
                     return Math.min(d['Family Income.Less than 20k.Test-takers'], d['Family Income.Between 20-40k.Test-takers'], d['Family Income.Between 40-60k.Test-Takers'],
                         d['Family Income.Between 60-80k.Test-takers'], d['Family Income.Between 80-100k.Test-takers'], d['Family Income.More than 100k.Test-takers'])
-                });     
+                });
+                
+                var label = "Total Number of Test Takers";
+
             } else if (value === "math_scores"){
                 var max = d3.max(data, function (d) {
                     return Math.max(d['Family Income.Less than 20k.Math'], d['Family Income.Between 20-40k.Math'], d['Family Income.Between 40-60k.Math'],
@@ -214,7 +209,9 @@
                 var min = d3.min(data, function (d) {
                     return Math.min(d['Family Income.Less than 20k.Math'], d['Family Income.Between 20-40k.Math'], d['Family Income.Between 40-60k.Math'],
                         d['Family Income.Between 60-80k.Math'], d['Family Income.Between 80-100k.Math'], d['Family Income.More than 100k.Math'])
-                });    
+                }); 
+                
+                var label = "Median Math Score";
             } else if (value === "verbal_scores"){
                 var max = d3.max(data, function (d) {
                     return Math.max(d['Family Income.Less than 20k.Verbal'], d['Family Income.Between 20-40k.Verbal'], d['Family Income.Between 40-60k.Verbal'],
@@ -224,10 +221,13 @@
                 var min = d3.min(data, function (d) {
                     return Math.min(d['Family Income.Less than 20k.Verbal'], d['Family Income.Between 20-40k.Verbal'], d['Family Income.Between 40-60k.Verbal'],
                         d['Family Income.Between 60-80k.Verbal'], d['Family Income.Between 80-100k.Verbal'], d['Family Income.More than 100k.Verbal'])
-                });    
+                }); 
+                
+                var label = "Median Verbal Score";
             } else {
                 console.log("Something has gone wrong.");
             }
+
 
             //create axes
             xScale.domain(years);
@@ -241,7 +241,8 @@
             .attr("y", height - 250)
             .attr("x", width - 100)
             .attr("text-anchor", "center")
-            .attr("stroke", "black")
+            .attr("fill", "black")
+            .style("font-size", "12px")
             .text("Year");
 
             //y axis
@@ -252,10 +253,10 @@
             .attr("y", 0)
             .attr("dy", "-5.1em")
             .attr("text-anchor", "center")
-            .attr("stroke", "black")
-            .text("AVG Number of Testtakers"); 
+            .attr("fill", "black")
+            .style("font-size", "12px")
+            .text(label); 
 
-            /// put the filter here ////
             columns = filterIncomeColumns(columns, value);
 
             var g = d3.select("g");
@@ -267,9 +268,35 @@
                         .y(function(d) { return yScale(d[i]) }))
                     .attr("fill", "none")
                     .attr("class", "line")
+                    .attr("data-legend", i)
                     .attr("stroke", function(d) { return myColor(i) })
-                    .attr("stroke-width", 1.5);    
+                    .attr("stroke-width", 1.5);
+
+             // Add one dot in the legend for each name.
+             svg.selectAll("mydots")
+            .data(columns)
+            .enter()
+            .append("circle")
+                .attr("cx", 980)
+                .attr("cy", function(d,i){ return 25 + i*15}) // 100 is where the first dot appears. 25 is the distance between dots
+                .attr("r", 5)
+                .style("fill", function(d){ return myColor(d)});
+
+            // Add one dot in the legend for each name.
+            svg.selectAll("mylabels")
+            .data(columns)
+            .enter()
+            .append("text")
+                .attr("x", 1000)
+                .attr("y", function(d,i){ return 25 + i*15 }) // 100 is where the first dot appears. 25 is the distance between dots
+                .style("fill", function(d){ return myColor(d) })
+                .text(function(d){ return d })
+                .attr("text-anchor", "left")
+                .style("font-size", "10px")
+                .style("alignment-baseline", "middle");
             });
+
+            
         })
     }
     function createScoreRange(value){
@@ -320,7 +347,9 @@
 
                     return Math.min(d['Score Ranges.Between 200 to 300.Total'], d['Score Ranges.Between 300 to 400.Total'], d['Score Ranges.Between 400 to 500.Total'], 
                      d['Score Ranges.Between 500 to 600.Total'], d['Score Ranges.Between 600 to 700.Total'], d['Score Ranges.Between 700 to 800.Total'])
-                });   
+                });  
+                
+                var label = "Total Number of Test Takers";
 
             } else if (value === "math_scores"){
                 var max = d3.max(data, function (d) {
@@ -333,6 +362,8 @@
                      d['Score Ranges.Between 500 to 600.Math.Total'], d['Score Ranges.Between 600 to 700.Math.Total'], d['Score Ranges.Between 700 to 800.Math.Total'])
                 });  
 
+                var label = "Median Math Score";
+
             } else if (value === "verbal_scores"){
                 var max = d3.max(data, function (d) {
                     return Math.max(d['Score Ranges.Between 200 to 300.Verbal.Total'], d['Score Ranges.Between 300 to 400.Verbal.Total'], d['Score Ranges.Between 400 to 500.Verbal.Total'], 
@@ -343,6 +374,8 @@
                     return Math.min(d['Score Ranges.Between 200 to 300.Verbal.Total'], d['Score Ranges.Between 300 to 400.Verbal.Total'], d['Score Ranges.Between 400 to 500.Verbal.Total'], 
                      d['Score Ranges.Between 500 to 600.Verbal.Total'], d['Score Ranges.Between 600 to 700.Verbal.Total'], d['Score Ranges.Between 700 to 800.Verbal.Total'])
                 });  
+
+                var label = "Median Verbal Score";
 
             } else {
                 console.log("Something went wrong.");
@@ -359,8 +392,9 @@
             .append("text")	
             .attr("y", height - 250)	
             .attr("x", width - 100)	
-            .attr("text-anchor", "center")	
-            .attr("stroke", "black")	
+            .attr("text-anchor", "center")
+            .attr("fill", "black")	
+            .style("font-size", "12px")
             .text("Year");	
             //y axis	
             g.append("g")	
@@ -370,8 +404,9 @@
             .attr("y", 0)	
             .attr("dy", "-5.1em")	
             .attr("text-anchor", "center")	
-            .attr("stroke", "black")	
-            .text("AVG Number of Testtakers"); 	
+            .attr("fill", "black")	
+            .style("font-size", "12px")
+            .text(label); 	
             ///filter goes here///	
             columns = filterScoreRange(columns, value);	
             var g = d3.select("g");	
@@ -385,6 +420,29 @@
                     .attr("class", "line")	
                     .attr("stroke", myColor(i))	
                     .attr("stroke-width", 1.5);
+
+            // Add one dot in the legend for each name.
+            svg.selectAll("mydots")
+            .data(columns)
+            .enter()
+            .append("circle")
+                .attr("cx", 950)
+                .attr("cy", function(d,i){ return 50 + i*15}) // 100 is where the first dot appears. 25 is the distance between dots
+                .attr("r", 5)
+                .style("fill", function(d){ return myColor(d)});
+
+            // Add one dot in the legend for each name.
+            svg.selectAll("mylabels")
+            .data(columns)
+            .enter()
+            .append("text")
+                .attr("x", 970)
+                .attr("y", function(d,i){ return 50 + i*15 }) // 100 is where the first dot appears. 25 is the distance between dots
+                .style("fill", function(d){ return myColor(d) })
+                .text(function(d){ return d })
+                .attr("text-anchor", "left")
+                .style("font-size", "10px")
+                .style("alignment-baseline", "middle");
             });
         })     
     }
@@ -419,7 +477,9 @@
                     	
                 var min = d3.min(data, function (d) {	
                     return Math.min(d['Gender.Female.Test-takers'], d['Gender.Male.Test-takers'])	
-                });     	
+                });
+                
+                var label = "Total Number of Test Takers";
             } else if (value === "math_scores"){	
                 var max = d3.max(data, function (d) {	
                     return Math.max(d['Gender.Female.Math'], d['Gender.Male.Math'], d['Total.Math'])	
@@ -428,6 +488,8 @@
                 var min = d3.min(data, function (d) {	
                     return Math.min(d['Gender.Female.Math'], d['Gender.Male.Math'], d['Total.Math'])	
                 });    	
+
+                var label = "Median Math Score";
             } else if (value === "verbal_scores"){	
                 var max = d3.max(data, function (d) {	
                     return Math.max(d['Gender.Female.Verbal'], d['Gender.Male.Verbal'], d['Total.Verbal'])	
@@ -435,7 +497,9 @@
                     	
                 var min = d3.min(data, function (d) {	
                     return Math.min(d['Gender.Female.Verbal'], d['Gender.Male.Verbal'], d['Total.Verbal'])	
-                });    	
+                });  
+                
+                var label = "Median Verbal Score";
             } else {	
                 console.log("Something went wrong.");	
             }	
@@ -451,7 +515,8 @@
             .attr("y", height - 250)	
             .attr("x", width - 100)	
             .attr("text-anchor", "center")	
-            .attr("stroke", "black")	
+            .attr("fill", "black")
+            .style("font-size", "12px")	
             .text("Year");	
             //y axis	
             g.append("g")	
@@ -461,8 +526,9 @@
             .attr("y", 0)	
             .attr("dy", "-5.1em")	
             .attr("text-anchor", "center")	
-            .attr("stroke", "black")	
-            .text("AVG Number of Testtakers"); 	
+            .attr("fill", "black")	
+            .style("font-size", "12px")
+            .text(label); 	
             ///filter goes here///	
             columns = filterGenderColumns(columns, value);	
             var g = d3.select("g");	
@@ -475,7 +541,30 @@
                     .attr("fill", "none")	
                     .attr("class", "line")	
                     .attr("stroke", myColor(i))	
-                    .attr("stroke-width", 1.5);    	
+                    .attr("stroke-width", 1.5);
+                    
+            // Add one dot in the legend for each name.
+            svg.selectAll("mydots")
+            .data(columns)
+            .enter()
+            .append("circle")
+                .attr("cx", 1050)
+                .attr("cy", function(d,i){ return 50 + i*15}) // 100 is where the first dot appears. 25 is the distance between dots
+                .attr("r", 5)
+                .style("fill", function(d){ return myColor(d)});
+
+            // Add one dot in the legend for each name.
+            svg.selectAll("mylabels")
+            .data(columns)
+            .enter()
+            .append("text")
+                .attr("x", 1070)
+                .attr("y", function(d,i){ return 50 + i*15 }) // 100 is where the first dot appears. 25 is the distance between dots
+                .style("fill", function(d){ return myColor(d) })
+                .text(function(d){ return d })
+                .attr("text-anchor", "left")
+                .style("font-size", "10px")
+                .style("alignment-baseline", "middle");
             });	
         })	
     }
@@ -511,7 +600,8 @@
                 var min = d3.min(data, function (d) {	
                     return Math.min(d['GPA.A plus.Test-takers'], d['GPA.A.Test-takers'], d['GPA.A minus.Test-takers'],	
                         d['GPA.B.Test-takers'], d['GPA.C.Test-takers'], d['GPA.D or lower.Test-takers'])	
-                });     	
+                }); 
+                var label = "Total Number of Test Takers";    	
             } else if (value === "math_scores"){	
                 var max = d3.max(data, function (d) {	
                     return Math.max(d['GPA.A plus.Math'], d['GPA.A.Math'], d['GPA.A minus.Math'],	
@@ -521,7 +611,9 @@
                 var min = d3.min(data, function (d) {	
                     return Math.min(d['GPA.A plus.Math'], d['GPA.A.Math'], d['GPA.A minus.Math'],	
                         d['GPA.B.Math'], d['GPA.C.Math'], d['GPA.D or lower.Math'])	
-                });    	
+                });    
+                
+                var label = "Median Math Score";
             } else if (value === "verbal_scores"){	
                 var max = d3.max(data, function (d) {	
                     return Math.max(d['GPA.A plus.Verbal'], d['GPA.A.Verbal'], d['GPA.A minus.Verbal'],	
@@ -531,7 +623,9 @@
                 var min = d3.min(data, function (d) {	
                     return Math.min(d['GPA.A plus.Verbal'], d['GPA.A.Verbal'], d['GPA.A minus.Verbal'],	
                         d['GPA.B.Verbal'], d['GPA.C.Verbal'], d['GPA.D or lower.Verbal'])	
-                });    	
+                });   
+                
+                var label = "Median Verbal Score";
             } else {	
                 console.log("Something went wrong.");	
             }	
@@ -547,7 +641,8 @@
             .attr("y", height - 250)	
             .attr("x", width - 100)	
             .attr("text-anchor", "center")	
-            .attr("stroke", "black")	
+            .attr("fill", "black")	
+            .style("font-size", "12px")
             .text("Year");	
             //y axis	
             g.append("g")	
@@ -557,8 +652,9 @@
             .attr("y", 0)	
             .attr("dy", "-5.1em")	
             .attr("text-anchor", "center")	
-            .attr("stroke", "black")	
-            .text("AVG Number of Testtakers"); 	
+            .attr("fill", "black")	
+            .style("font-size", "12px")
+            .text(label); 	
             /// filter goes here ///	
             columns = filterGPAColumns(columns, value);	
             var g = d3.select("g");	
@@ -571,7 +667,32 @@
                     .attr("fill", "none")	
                     .attr("class", "line")	
                     .attr("stroke", myColor(i))	
-                    .attr("stroke-width", 1.5);    	
+                    .attr("stroke-width", 1.5);  
+                    
+            // Add one dot in the legend for each name.
+            var legend = svg.append("svg");
+            legend.style("background-color", "white");
+            legend.selectAll("mydots")
+            .data(columns)
+            .enter()
+            .append("circle")
+                .attr("cx", 1050)
+                .attr("cy", function(d,i){ return 40 + i*15}) // 100 is where the first dot appears. 25 is the distance between dots
+                .attr("r", 5)
+                .style("fill", function(d){ return myColor(d)});
+
+            // Add one dot in the legend for each name.
+            legend.selectAll("mylabels")
+            .data(columns)
+            .enter()
+            .append("text")
+                .attr("x", 1070)
+                .attr("y", function(d,i){ return 40 + i*15 }) // 100 is where the first dot appears. 25 is the distance between dots
+                .style("fill", function(d){ return myColor(d) })
+                .text(function(d){ return d })
+                .attr("text-anchor", "left")
+                .style("font-size", "10px")
+                .style("alignment-baseline", "middle");
             });	
         })	
 }	
