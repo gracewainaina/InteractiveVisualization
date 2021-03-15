@@ -3,10 +3,6 @@
 <head>
     <meta charset="utf-8">
     <style>
-    svg {
-        width: 600;
-        height: 500;
-    }
 
     .reveal-if-active{
         opacity: 0;
@@ -34,7 +30,9 @@
     <input type="radio" name="subject" value="Verbal" id = "verbal_scores" onclick="createVerbal()">Verbal</input>
 </form>
 
-<svg width = "600" height = "500"></svg>
+<div style="text-align: center;">
+    <svg width = "1200" height = "500"></svg>
+</div>
 
 <form>
     <div>
@@ -75,6 +73,8 @@
 
 <script>
     var years = ["2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015"];
+    var colors = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]
+
 
     function createTestTakers(){
         document.getElementById("default").checked = true;
@@ -155,7 +155,9 @@
         
         d3.csv(file).then(function (data) {
             var columns = data.columns.filter(i => i != 'Year');
-            
+            var myColor = d3.scaleOrdinal().domain(columns)
+                .range(["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]);
+
             //do scales
             var svg = d3.select("svg");
             var margin = 200;
@@ -168,7 +170,7 @@
 
             //idk why but yeh
             var g = svg.append("g")
-                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("transform", "translate(" + 100 + "," + 50 + ")")
                     .attr("class", value);
 
             if (value === "test_takers"){
@@ -216,7 +218,7 @@
             .append("text")
             .attr("y", height - 250)
             .attr("x", width - 100)
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("Year");
 
@@ -225,9 +227,9 @@
             .call(d3.axisLeft(yScale))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", 0)
             .attr("dy", "-5.1em")
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("AVG Number of Testtakers"); 
 
@@ -243,7 +245,7 @@
                         .y(function(d) { return yScale(d[i]) }))
                     .attr("fill", "none")
                     .attr("class", "line")
-                    .attr("stroke", "black")
+                    .attr("stroke", function(d) { return myColor(i) })
                     .attr("stroke-width", 1.5);    
             });
         })
@@ -256,6 +258,8 @@
         
         d3.csv(file).then(function (data) {
             var columns = data.columns.filter(i => i != 'Year');
+            var myColor = d3.scaleOrdinal().domain(columns)
+                .range(["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]);
             console.log(columns);
             
             //do scales
@@ -270,7 +274,7 @@
 
             //idk why but yeh
             var g = svg.append("g")
-                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("transform", "translate(" + 100 + "," + 50 + ")")
                     .attr("class", value);
 
             if (value === "test_takers"){
@@ -312,7 +316,7 @@
             .append("text")
             .attr("y", height - 250)
             .attr("x", width - 100)
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("Year");
 
@@ -321,9 +325,9 @@
             .call(d3.axisLeft(yScale))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", 0)
             .attr("dy", "-5.1em")
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("AVG Number of Testtakers"); 
 
@@ -339,7 +343,7 @@
                         .y(function(d) { return yScale(d[i]) }))
                     .attr("fill", "none")
                     .attr("class", "line")
-                    .attr("stroke", "black")
+                    .attr("stroke", myColor(i))
                     .attr("stroke-width", 1.5);    
             });
         })
@@ -353,6 +357,8 @@
         d3.csv(file).then(function (data) {
             var columns = data.columns.filter(i => i != 'Year');
             console.log(columns);
+            var myColor = d3.scaleOrdinal().domain(columns)
+                .range(["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]);
             
             //do scales
             var svg = d3.select("svg");
@@ -366,7 +372,7 @@
 
             //idk why but yeh
             var g = svg.append("g")
-                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("transform", "translate(" + 100 + "," + 50 + ")")
                     .attr("class", value);
 
             if (value === "test_takers"){
@@ -414,7 +420,7 @@
             .append("text")
             .attr("y", height - 250)
             .attr("x", width - 100)
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("Year");
 
@@ -423,9 +429,9 @@
             .call(d3.axisLeft(yScale))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", 0)
             .attr("dy", "-5.1em")
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("AVG Number of Testtakers"); 
 
@@ -441,7 +447,7 @@
                         .y(function(d) { return yScale(d[i]) }))
                     .attr("fill", "none")
                     .attr("class", "line")
-                    .attr("stroke", "black")
+                    .attr("stroke", myColor(i))
                     .attr("stroke-width", 1.5);    
             });
         })
