@@ -3,10 +3,6 @@
 <head>
     <meta charset="utf-8">
     <style>
-    svg {
-        width: 600;
-        height: 500;
-    }
 
     .reveal-if-active{
         opacity: 0;
@@ -34,38 +30,40 @@
     <input type="radio" name="subject" value="Verbal" id = "verbal_scores" onclick="createVerbal()">Verbal</input>
 </form>
 
-<svg width = "600" height = "500"></svg>
+<div style="text-align: center;">
+    <svg width = "1200" height = "500"></svg>
+</div>
 
 <form>
     <div>
         <input type="radio" name="category" value="income" id = "default" onclick="createIncome(bottomButtonCheck())" checked>Income Bracket</input>
         <div class="reveal-if-active">
-            <button type="button" value='Family Income.Less than 20k.'>Below 20k</button>
-            <button type="button" value='Family Income.Between 20-40k.'>20k - 40k</button>
-            <button type="button" value='Family Income.Between 40-60k.'>40k - 60k</button>
-            <button type="button" value='Family Income.Between 60-80k.'>60k - 80k</button>
-            <button type="button" value='Family Income.Between 80-100k.'>80k - 100k</button>
-            <button type="button" value='Family Income.More than 100k.'>Above 100k</button>
+            <input type="checkbox" id='Less than 20k' onclick="createIncome(bottomButtonCheck())" checked>Below 20k</input>
+            <input type="checkbox" id='Between 20-40k' onclick="createIncome(bottomButtonCheck())" checked>20k - 40k</input>
+            <input type="checkbox" id='Between 40-60k' onclick="createIncome(bottomButtonCheck())" checked>40k - 60k</input>
+            <input type="checkbox" id='Between 60-80k' onclick="createIncome(bottomButtonCheck())" checked>60k - 80k</input>
+            <input type="checkbox" id='Between 80-100k' onclick="createIncome(bottomButtonCheck())" checked>80k - 100k</input>
+            <input type="checkbox" id='More than 100k' onclick="createIncome(bottomButtonCheck())" checked>Above 100k</input>
         </div> 
     </div>
     
     <div>
         <input type="radio" name="category" value="gender" onclick="createGender(bottomButtonCheck())">Gender</input>
         <div class="reveal-if-active">
-            <button type="button" value='Gender.Female.'>Female</button>
-            <button type="button" value='Gender.Male.'>Male</button> 
+            <input type="checkbox" id='Female' onclick="createGender(bottomButtonCheck())" checked>Female</input>
+            <input type="checkbox" id='Male' onclick="createGender(bottomButtonCheck())" checked>Male</input> 
         </div>
     </div>
     
     <div>
         <input type="radio" name="category" value="gpa" onclick="createGPA(bottomButtonCheck())">GPA</input>
         <div class="reveal-if-active">
-            <button type="button" value='GPA.A plus.'>A+</button>
-            <button type="button" value='GPA.A.'>A</button>
-            <button type="button" value='GPA.A minus.'>A-</button>
-            <button type="button" value='GPA.B.'>B</button>
-            <button type="button" value='GPA.C.'>C</button>
-            <button type="button" value='GPA.D or lower.'>D or lower</button> 
+            <input type="checkbox" id='A plus' onclick="createGPA(bottomButtonCheck())" checked>A+</input>
+            <input type="checkbox" id='A' onclick="createGPA(bottomButtonCheck())" checked>A</input>
+            <input type="checkbox" id='A minus' onclick="createGPA(bottomButtonCheck())" checked>A-</input>
+            <input type="checkbox" id='B' onclick="createGPA(bottomButtonCheck())" checked>B</input>
+            <input type="checkbox" id='C' onclick="createGPA(bottomButtonCheck())" checked>C</input>
+            <input type="checkbox" id='D or lower' onclick="createGPA(bottomButtonCheck())" checked>D or lower</input> 
         </div>
     </div> 
 </form>
@@ -75,6 +73,8 @@
 
 <script>
     var years = ["2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015"];
+    var colors = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]
+
 
     function createTestTakers(){
         document.getElementById("default").checked = true;
@@ -96,10 +96,6 @@
         var math = document.getElementById("math_scores").checked;
         var verbal = document.getElementById("verbal_scores").checked;
 
-        console.log(takers);
-        console.log(math);
-        console.log(verbal);
-
         if (takers){
             var value = "test_takers";
         } else if (math) {
@@ -111,15 +107,57 @@
         return value;
     }
 
+    function filterIncomeColumns(columns, value){
+        var lower20 = document.getElementById('Less than 20k').checked;
+        var b20to40 = document.getElementById('Between 20-40k').checked;
+        var b40to60 = document.getElementById('Between 40-60k').checked;
+        var b60to80 = document.getElementById('Between 60-80k').checked;
+        var b80to100 = document.getElementById('Between 80-100k').checked;
+        var plus100 = document.getElementById('More than 100k').checked;
+
+        var arr = [false, b20to40, b40to60, b60to80, b80to100, lower20, plus100];
+        console.log(arr);
+
+        const results = columns.filter((d, ind) => arr[ind]);
+
+        //console.log(columns);
+        return results;
+    }
+
+    function filterGenderColumns(columns, value){
+        var female = document.getElementById("Female").checked;
+        var male = document.getElementById("Male").checked;
+
+        var arr = [false, female, male];
+
+        //console.log(arr);
+        const results = columns.filter((d, ind) => arr[ind]);
+        //console.log(results);
+        return results;
+    }
+
+    function filterGPAColumns(columns, value){
+        var aPlus = document.getElementById("A plus").checked;
+        var a = document.getElementById("A").checked;
+        var aMinus = document.getElementById("A minus").checked;
+        var b = document.getElementById("B").checked;
+        var c = document.getElementById("C").checked;
+        var d = document.getElementById("D or lower").checked;
+
+        var arr = [false, aMinus, aPlus, a, b, c, d];
+        const results = columns.filter((d, ind) => arr[ind]);
+        return results;
+    }
+
     function createIncome(value){
         d3.selectAll("svg > *").remove();
         var file = "data/income_" + value + ".csv";
-        console.log(file)
         
         d3.csv(file).then(function (data) {
             var columns = data.columns.filter(i => i != 'Year');
-            console.log(columns);
-            
+            var myColor = d3.scaleOrdinal().domain(columns)
+                .range(["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]);
+
             //do scales
             var svg = d3.select("svg");
             var margin = 200;
@@ -132,7 +170,7 @@
 
             //idk why but yeh
             var g = svg.append("g")
-                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("transform", "translate(" + 100 + "," + 50 + ")")
                     .attr("class", value);
 
             if (value === "test_takers"){
@@ -180,7 +218,7 @@
             .append("text")
             .attr("y", height - 250)
             .attr("x", width - 100)
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("Year");
 
@@ -189,23 +227,26 @@
             .call(d3.axisLeft(yScale))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", 0)
             .attr("dy", "-5.1em")
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("AVG Number of Testtakers"); 
 
-                var g = d3.select("g");
-                columns.forEach(i => {
-                    g.append("path")
-                        .datum(data)
-                        .attr("d", d3.line()
-                            .x(function(d) { return xScale(d.Year) })
-                            .y(function(d) { return yScale(d[i]) }))
-                        .attr("fill", "none")
-                        .attr("class", "line")
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 1.5);    
+            /// put the filter here ////
+            columns = filterIncomeColumns(columns, value);
+
+            var g = d3.select("g");
+            columns.forEach(i => {
+                g.append("path")
+                    .datum(data)
+                    .attr("d", d3.line()
+                        .x(function(d) { return xScale(d.Year) })
+                        .y(function(d) { return yScale(d[i]) }))
+                    .attr("fill", "none")
+                    .attr("class", "line")
+                    .attr("stroke", function(d) { return myColor(i) })
+                    .attr("stroke-width", 1.5);    
             });
         })
     }
@@ -217,6 +258,8 @@
         
         d3.csv(file).then(function (data) {
             var columns = data.columns.filter(i => i != 'Year');
+            var myColor = d3.scaleOrdinal().domain(columns)
+                .range(["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]);
             console.log(columns);
             
             //do scales
@@ -231,7 +274,7 @@
 
             //idk why but yeh
             var g = svg.append("g")
-                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("transform", "translate(" + 100 + "," + 50 + ")")
                     .attr("class", value);
 
             if (value === "test_takers"){
@@ -273,7 +316,7 @@
             .append("text")
             .attr("y", height - 250)
             .attr("x", width - 100)
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("Year");
 
@@ -282,23 +325,26 @@
             .call(d3.axisLeft(yScale))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", 0)
             .attr("dy", "-5.1em")
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("AVG Number of Testtakers"); 
 
-                var g = d3.select("g");
-                columns.forEach(i => {
-                    g.append("path")
-                        .datum(data)
-                        .attr("d", d3.line()
-                            .x(function(d) { return xScale(d.Year) })
-                            .y(function(d) { return yScale(d[i]) }))
-                        .attr("fill", "none")
-                        .attr("class", "line")
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 1.5);    
+            ///filter goes here///
+            columns = filterGenderColumns(columns, value);
+
+            var g = d3.select("g");
+            columns.forEach(i => {
+                g.append("path")
+                    .datum(data)
+                    .attr("d", d3.line()
+                        .x(function(d) { return xScale(d.Year) })
+                        .y(function(d) { return yScale(d[i]) }))
+                    .attr("fill", "none")
+                    .attr("class", "line")
+                    .attr("stroke", myColor(i))
+                    .attr("stroke-width", 1.5);    
             });
         })
     }
@@ -311,6 +357,8 @@
         d3.csv(file).then(function (data) {
             var columns = data.columns.filter(i => i != 'Year');
             console.log(columns);
+            var myColor = d3.scaleOrdinal().domain(columns)
+                .range(["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]);
             
             //do scales
             var svg = d3.select("svg");
@@ -324,7 +372,7 @@
 
             //idk why but yeh
             var g = svg.append("g")
-                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+                    .attr("transform", "translate(" + 100 + "," + 50 + ")")
                     .attr("class", value);
 
             if (value === "test_takers"){
@@ -372,7 +420,7 @@
             .append("text")
             .attr("y", height - 250)
             .attr("x", width - 100)
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("Year");
 
@@ -381,23 +429,26 @@
             .call(d3.axisLeft(yScale))
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", 0)
             .attr("dy", "-5.1em")
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "center")
             .attr("stroke", "black")
             .text("AVG Number of Testtakers"); 
 
-                var g = d3.select("g");
-                columns.forEach(i => {
-                    g.append("path")
-                        .datum(data)
-                        .attr("d", d3.line()
-                            .x(function(d) { return xScale(d.Year) })
-                            .y(function(d) { return yScale(d[i]) }))
-                        .attr("fill", "none")
-                        .attr("class", "line")
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 1.5);    
+            /// filter goes here ///
+            columns = filterGPAColumns(columns, value);
+
+            var g = d3.select("g");
+            columns.forEach(i => {
+                g.append("path")
+                    .datum(data)
+                    .attr("d", d3.line()
+                        .x(function(d) { return xScale(d.Year) })
+                        .y(function(d) { return yScale(d[i]) }))
+                    .attr("fill", "none")
+                    .attr("class", "line")
+                    .attr("stroke", myColor(i))
+                    .attr("stroke-width", 1.5);    
             });
         })
 }
